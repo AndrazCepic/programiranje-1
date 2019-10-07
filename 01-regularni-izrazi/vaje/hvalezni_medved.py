@@ -40,7 +40,11 @@ print(find_words(test_text, "de"))
 # >>> find_prefix(test_text, 'zi')
 # {'zibala', 'zibel', 'zibelko'}
 ###############################################################################
+def find_prefix(str, key):
+    reg = r"\W(" + key + r"\w*?)\W"
+    return set(re.findall(reg, str))
 
+print(find_prefix(test_text, "zi"))
 
 ###############################################################################
 # 3) Sestavite funkcijo [find_suffix], ki vrne množico vseh besed, ki se
