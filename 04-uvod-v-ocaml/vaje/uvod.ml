@@ -101,7 +101,7 @@ let rec double = function
 [*----------------------------------------------------------------------------*)
 
 let rec insert y k list = 
-  if k < 0 || k > List.length then
+  if k < 0 || k >= List.length list then
     y :: list
   else
     match list with
@@ -125,7 +125,7 @@ let rec insert y k list =
 
 let rec divide k sez = 
   if k <= 0 then
-    []
+    ([], sez)
   else
     match sez with 
     | x :: xs -> 
@@ -141,7 +141,8 @@ let rec divide k sez =
  - : int list = [3; 4; 5; 1; 2]
 [*----------------------------------------------------------------------------*)
 
-let rec rotate = ()
+let rec rotate k list = ()
+  
 
 (*----------------------------------------------------------------------------*]
  Funkcija [remove x list] iz seznama izbriše vse pojavitve elementa [x].
