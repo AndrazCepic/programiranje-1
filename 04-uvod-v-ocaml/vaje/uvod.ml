@@ -41,7 +41,7 @@ let rec starting_element = function
 
 let rec multiply sez = 
   match sez with 
-  | x :: z -> x * multiply z
+  | x :: xs -> x * multiply xs
   | [] -> 1
 
 (*----------------------------------------------------------------------------*]
