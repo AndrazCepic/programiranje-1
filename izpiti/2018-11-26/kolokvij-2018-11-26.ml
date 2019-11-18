@@ -1,13 +1,22 @@
 (* -------- 1 -------- *)
 
-(* -------- 2 -------- *)
 
+(* -------- 2 -------- *)
+let rec urejen list = 
+    match list with
+    | x :: y :: xs -> 
+        if x <= y then
+            urejen y :: xs
+        else 
+            false
+    | _ -> true
 (* -------- 3 -------- *)
 
 (* -------- 4 -------- *)
 
 (* -------- 5 -------- *)
-
+type priority = Top | Group of int
+type status = Staff | Passenger of priority
 type flyer = { status : status ; name : string }
 
 let flyers = [ {status = Staff; name = "Quinn"}
