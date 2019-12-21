@@ -34,13 +34,21 @@
  # insert 7 [];;
  - : int list = [7]
 [*----------------------------------------------------------------------------*)
-
+let insert olist y = 
+    let rec aux acc = function
+        | [] -> List.rev (y::acc)
+        | x::xs -> 
+            if y < x then
+                List.rev_append acc (y::x::xs)
+            else
+                aux (x::acc) xs
+    in aux [] olist               
 
 (*----------------------------------------------------------------------------*]
  Prazen seznam je že urejen. Funkcija [insert_sort] uredi seznam tako da
  zaporedoma vstavlja vse elemente seznama v prazen seznam.
 [*----------------------------------------------------------------------------*)
-
+let insert_sort list = List.fold_left insert [] list
 
 
 (*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*]
@@ -52,7 +60,29 @@
  najmanjši element v [list] in seznam [list'] enak [list] z odstranjeno prvo
  pojavitvijo elementa [z]. V primeru praznega seznama vrne [None]. 
 [*----------------------------------------------------------------------------*)
-
+type tup = Some of int * int list | None
+let min_and_rest list = 
+    match list with
+    | [] -> None
+    | x::xs -> 
+        let rec aux_min min = function
+        | [] -> min
+        | y::ys -> 
+            if y < min then
+                aux_min y ys
+            else 
+                aux_min min ys
+        in 
+        let min = aux_min x xs
+        in
+        let rec aux_rem acc = function
+            | y::ys -> 
+                if y = min then
+                    Some (min, List.rev_append acc ys)
+                else 
+                    aux_min (y::acc) ys
+        in 
+        aux_rem [] list
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  Pri urejanju z izbiranjem na vsakem koraku ločimo dva podseznama, kjer je prvi
@@ -100,6 +130,10 @@
  # test;;
  - : int array = [|0; 4; 2; 3; 1|]
 [*----------------------------------------------------------------------------*)
+let swap a i j =
+    let z = a.(i) in
+    a.(i) <- a.(j);
+    a.(j) <- z
 
 
 (*----------------------------------------------------------------------------*]
@@ -108,7 +142,14 @@
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  index_min [|0; 2; 9; 3; 6|] 2 4 = 4
 [*----------------------------------------------------------------------------*)
-
+let index_min a lower upper =
+    let cur_ind = ref lower in
+    for i = (lower + 1) to upper
+    do
+        if a.(i) < a.(!cur_ind) then
+            cur_ind <- i
+    done 
+    !cur_ind
 
 (*----------------------------------------------------------------------------*]
  Funkcija [selection_sort_array] implementira urejanje z izbiranjem na mestu. 
