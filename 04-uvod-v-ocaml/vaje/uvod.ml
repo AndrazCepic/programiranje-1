@@ -141,7 +141,13 @@ let rec divide k sez =
  - : int list = [3; 4; 5; 1; 2]
 [*----------------------------------------------------------------------------*)
 
-let rec rotate k list = ()
+let rotate k list = 
+  let rec aux k list acc =
+    if k <= 0 then
+    else 
+      match list with
+      | x :: xs -> x :: rotate (k-1) xs
+      | [] -> 
   
 
 (*----------------------------------------------------------------------------*]
