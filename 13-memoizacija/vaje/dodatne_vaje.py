@@ -46,5 +46,31 @@ soba = [[0, 1, 0, 0, 2],
         [0, 0, 0, 2, 2]]
 
 
-def pobeg(soba, pozicija, koraki):
-    return None
+def pobeg(soba, zac_x, zac_y, koraki):
+    w = len(soba[0])
+    h = len(soba)
+
+    @lru_cache(maxsize=None)
+    def aux(x, y, fuel):
+        if y == h or x == w:
+            return False
+
+        if soba[y][x] == 1:
+            return True
+        
+        if soba[y][x] not in (0, 1) or fuel == 0:
+            return False
+
+        return (
+            aux(x + 1, y, fuel - 1) or
+            aux(x, y + 1, fuel - 1) or
+            aux(x - 1, y, fuel - 1) or
+            aux(x, y - 1, fuel - 1)
+        )
+
+    return aux(zac_x, zac_y, koraki)
+
+print(pobeg(soba, 1, 2, 10))
+
+def mapping(graph, start_x, start_y):
+    

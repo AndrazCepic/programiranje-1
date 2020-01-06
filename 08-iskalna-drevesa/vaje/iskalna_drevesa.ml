@@ -6,7 +6,8 @@
  poddrevesi. Na tej točki ne predpostavljamo ničesar drugega o obliki dreves.
 [*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*)
 type tree =
-     | 
+     | Empty
+     
 
 (*----------------------------------------------------------------------------*]
  Definirajmo si testni primer za preizkušanje funkcij v nadaljevanju. Testni
