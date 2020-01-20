@@ -71,6 +71,4 @@ def pobeg(soba, zac_x, zac_y, koraki):
     return aux(zac_x, zac_y, koraki)
 
 print(pobeg(soba, 1, 2, 10))
-
-def mapping(graph, start_x, start_y):
     

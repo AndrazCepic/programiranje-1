@@ -27,6 +27,33 @@
 #     [10, 2, 0, 4, 11, 15, 17, 5, 18]
 ###############################################################################
 
+def pivot(a, start, end):
+    p = start
+    l = start + 1
+    r = end
+    on_left = False
+
+    while l < r:
+        if on_left:
+            if a[l] >= a[p]:
+                temp = a[l]
+                a[l] = a[p]
+                a[p] = temp
+                p = l
+                on_left = False
+            l += 1
+        else:
+            if a[r] < a[p]:
+                temp = a[r]
+                a[r] = a[p]
+                a[p] = temp
+                p = r
+                on_left = True
+            r -= 1
+    return p
+        
+a = [10, 4, 5, 15, 11, 2, 17, 0, 18]
+print(pivot(a, 1, 7))
 
 
 ###############################################################################
