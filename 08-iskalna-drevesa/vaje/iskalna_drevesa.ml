@@ -21,6 +21,25 @@ type 'a tree =
       0   6   11
 [*----------------------------------------------------------------------------*)
 
+let primer = Node(
+     Node (
+          Node(
+               Empty, 0, Empty
+          ),
+          2,
+          Empty
+     ),
+     5,
+     Node (
+          Node (
+               Empty, 6, Empty
+          ),
+          7,
+          Node(
+               Empty, 11, Empty
+          )
+     )
+)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [mirror] vrne prezrcaljeno drevo. Na primeru [test_tree] torej vrne
@@ -35,7 +54,8 @@ type 'a tree =
  Node (Node (Node (Empty, 11, Empty), 7, Node (Empty, 6, Empty)), 5,
  Node (Empty, 2, Node (Empty, 0, Empty)))
 [*----------------------------------------------------------------------------*)
-
+let rec mirror = function
+|     
 
 (*----------------------------------------------------------------------------*]
  Funkcija [height] vrne višino oz. globino drevesa, funkcija [size] pa število

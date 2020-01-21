@@ -71,7 +71,14 @@ print(pivot(a, 1, 7))
 # jo rešite brez da v celoti uredite tabelo [a].
 ###############################################################################
 
-
+def kth_element(a, k):
+    p = pivot(a, 0, len(a) - 1)
+    if k < p:
+        return kth_element(a[0:p], k)
+    elif k == p:
+        return a[p]
+    else:
+        return kth_element(a[p+1:], k - p)
 
 ###############################################################################
 # Tabelo a želimo urediti z algoritmom hitrega urejanja (quicksort).
@@ -87,6 +94,7 @@ print(pivot(a, 1, 7))
 #     [2, 3, 4, 5, 10, 11, 15, 17, 18]
 ###############################################################################
 
+#def quicksort(a):
 
 
 ###############################################################################

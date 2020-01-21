@@ -76,11 +76,12 @@ let min_and_rest list =
         let min = aux_min x xs
         in
         let rec aux_rem acc = function
+            | [] -> Some(min, [])
             | y::ys -> 
                 if y = min then
                     Some (min, List.rev_append acc ys)
                 else 
-                    aux_min (y::acc) ys
+                    aux_rem (y::acc) ys
         in 
         aux_rem [] list
 
@@ -102,7 +103,14 @@ let min_and_rest list =
  Namig: Uporabi [min_and_rest] iz prejšnje naloge.
 [*----------------------------------------------------------------------------*)
 
-
+let selection_sort l =
+    let rec aux acc = function
+        | [] ->  List.rev acc
+        | x::xs -> 
+            match min_and_rest (x::xs) with
+            | None -> List.rev acc
+            | Some (m, rest) -> aux (m::acc) rest
+    in aux [] l
 
 (*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*]
  Urejanje z Izbiranjem na Tabelah
@@ -142,6 +150,8 @@ let swap a i j =
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  index_min [|0; 2; 9; 3; 6|] 2 4 = 4
 [*----------------------------------------------------------------------------*)
+
+(*
 let index_min a lower upper =
     let cur_ind = ref lower in
     for i = (lower + 1) to upper
@@ -150,6 +160,7 @@ let index_min a lower upper =
             cur_ind <- i
     done 
     !cur_ind
+*)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [selection_sort_array] implementira urejanje z izbiranjem na mestu. 
