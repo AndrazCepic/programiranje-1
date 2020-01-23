@@ -8,7 +8,9 @@
 
 type 'a tree =
      | Empty
-     | Node of tree * 'a * tree
+     | Node of 'a tree * 'a * 'a tree
+
+let leaf a = Node (Empty, a, Empty)
 
 (*----------------------------------------------------------------------------*]
  Definirajmo si testni primer za preizkušanje funkcij v nadaljevanju. Testni
@@ -55,7 +57,8 @@ let primer = Node(
  Node (Empty, 2, Node (Empty, 0, Empty)))
 [*----------------------------------------------------------------------------*)
 let rec mirror = function
-|     
+     | Empty -> Empty
+     | Node (l, a, r) -> Node (mirror r, a, mirror l)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [height] vrne višino oz. globino drevesa, funkcija [size] pa število
@@ -66,7 +69,19 @@ let rec mirror = function
  # size test_tree;;
  - : int = 6
 [*----------------------------------------------------------------------------*)
+let rec height = function
+     | Empty -> 0
+     | Node (l, a, r) -> 
+          let hl = height l in
+          let hr = height r in
+          if hl < hr then
+               hr + 1 
+          else
+               hl + 1
 
+let rec size = function
+     | Empty -> 0
+     | Node (l, a , r) -> (size l) + (size r) + 1
 
 (*----------------------------------------------------------------------------*]
  Funkcija [map_tree f tree] preslika drevo v novo drevo, ki vsebuje podatke
@@ -77,7 +92,9 @@ let rec mirror = function
  Node (Node (Node (Empty, false, Empty), false, Empty), true,
  Node (Node (Empty, true, Empty), true, Node (Empty, true, Empty)))
 [*----------------------------------------------------------------------------*)
-
+let rec map_tree f = function
+     | Empty -> Empty
+     | Node (l, a, r) -> Node (map_tree f l, f a, map_tree f r) 
 
 (*----------------------------------------------------------------------------*]
  Funkcija [list_of_tree] pretvori drevo v seznam. Vrstni red podatkov v seznamu
@@ -86,7 +103,9 @@ let rec mirror = function
  # list_of_tree test_tree;;
  - : int list = [0; 2; 5; 6; 7; 11]
 [*----------------------------------------------------------------------------*)
-
+let rec list_of_tree = function
+     | Empty -> []
+     | Node (l, a, r) -> (list_of_tree l) @ [a] @ (list_of_tree r)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [is_bst] preveri ali je drevo binarno iskalno drevo (Binary Search 
@@ -98,7 +117,21 @@ let rec mirror = function
  # test_tree |> mirror |> is_bst;;
  - : bool = false
 [*----------------------------------------------------------------------------*)
+let rec and_tree pred = function
+     | Empty -> true
+     | Node (l, a, r) -> 
+          if pred a then
+               (and_tree pred l) && (and_tree pred r)
+          else
+               false
 
+let rec is_bst = function
+     | Empty -> true
+     | Node (l, a, r) -> 
+          (and_tree ((>)a) l) &&
+          (and_tree ((<)a) r) &&
+          (is_bst l) &&
+          (is_bst r)           
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  V nadaljevanju predpostavljamo, da imajo dvojiška drevesa strukturo BST.
@@ -113,7 +146,26 @@ let rec mirror = function
  # member 3 test_tree;;
  - : bool = false
 [*----------------------------------------------------------------------------*)
+let rec insert a = function
+     | Empty -> Node (Empty, a, Empty)
+     | Node (l, n, r) -> 
+          if a = n then
+               failwith "Ta element je že v tem BST!"
+          else
+               if a < n then
+                    Node (insert a l, n, r)
+               else
+                    Node (l, n, insert a r)
 
+let rec member a = function
+     | Empty -> false
+     | Node (l, n, r) -> 
+          if a = n then
+               true
+          else if  a < n then
+               member a l
+          else
+               member a r
 
 (*----------------------------------------------------------------------------*]
  Funkcija [member2] ne privzame, da je drevo bst.
@@ -121,7 +173,13 @@ let rec mirror = function
  Opomba: Premislte kolikšna je časovna zahtevnost funkcije [member] in kolikšna
  funkcije [member2] na drevesu z n vozlišči, ki ima globino log(n). 
 [*----------------------------------------------------------------------------*)
-
+let rec member2 a = function
+     | Empty -> false
+     | Node (l, n, r) -> 
+          if a = n then
+               true
+          else
+               (member a l) || (member a r)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [succ] vrne naslednjika korena danega drevesa, če obstaja. Za drevo
@@ -135,7 +193,23 @@ let rec mirror = function
  # pred (Node(Empty, 5, leaf 7));;
  - : int option = None
 [*----------------------------------------------------------------------------*)
+let succ = function
+     | Empty -> None
+     | Node (_, a, r) -> 
+          let rec aux acc = function
+               | Empty -> acc
+               | Node (l, n, _) -> 
+                    aux (Some n) l
+          in aux None r
 
+let pred = function
+     | Empty -> None
+     | Node (l, a, _) -> 
+          let rec aux acc = function
+               | Empty -> acc
+               | Node (_, n, r) -> 
+                    aux (Some n) r
+          in aux None l
 
 (*----------------------------------------------------------------------------*]
  Na predavanjih ste omenili dva načina brisanja elementov iz drevesa. Prvi 
@@ -149,7 +223,18 @@ let rec mirror = function
  Node (Node (Node (Empty, 0, Empty), 2, Empty), 5,
  Node (Node (Empty, 6, Empty), 11, Empty))
 [*----------------------------------------------------------------------------*)
-
+let rec delete a t =
+     match t with
+     | Empty -> Empty
+     | Node (l, n, r) ->
+          if a < n then
+               Node(delete a l, n, r)
+          else if a > n then
+               Node(l, n, delete a r)
+          else
+               match succ t with
+               | None -> Empty
+               | Some c -> Node (l, c, delete c r)
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  SLOVARJI
