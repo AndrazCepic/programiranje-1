@@ -246,7 +246,7 @@ let rec delete a t =
  strukturo glede na ključe. Ker slovar potrebuje parameter za tip ključa in tip
  vrednosti, ga parametriziramo kot [('key, 'value) dict].
 [*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*)
-
+type ('key, 'value) dict = 'key * 'value tree
 
 (*----------------------------------------------------------------------------*]
  Napišite testni primer [test_dict]:
@@ -256,7 +256,7 @@ let rec delete a t =
          /
      "c":-2
 [*----------------------------------------------------------------------------*)
-
+let test_dict = Node (leaf ("a", 0), ("b", 1), Node (leaf ("c", -2), ("d", 2), Empty))
 
 (*----------------------------------------------------------------------------*]
  Funkcija [dict_get key dict] v slovarju poišče vrednost z ključem [key]. Ker
@@ -268,7 +268,13 @@ let rec delete a t =
  - : int option = Some (-2)
 [*----------------------------------------------------------------------------*)
 
-      
+let rec dict_get key = function
+     | Empty -> None
+     | Node (l, (k, v), r) ->
+          if key = k then Some v
+          else if key < k then dict_get key l
+          else dict_get key r
+
 (*----------------------------------------------------------------------------*]
  Funkcija [print_dict] sprejme slovar s ključi tipa [string] in vrednostmi tipa
  [int] in v pravilnem vrstnem redu izpiše vrstice "ključ : vrednost" za vsa
@@ -285,6 +291,14 @@ let rec delete a t =
  - : unit = ()
 [*----------------------------------------------------------------------------*)
 
+let print_dict d = 
+     let rec aux = function
+          | Empty -> ""
+          | Node (l, (key, value), r) -> 
+               (aux l) ^ (key ^ " : " ^ (string_of_int value) ^ "\n") ^ (aux r)
+     in print_string (aux d)
+
+(* k ^ " : " ^ (string_of_int v) ^ "\n" *)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [dict_insert key value dict] v slovar [dict] pod ključ [key] vstavi
@@ -304,4 +318,16 @@ let rec delete a t =
  d : 2
  - : unit = ()
 [*----------------------------------------------------------------------------*)
+
+let rec dict_insert key value dict = 
+     match dict with
+     | Empty -> leaf (key, value)
+     | Node (l, (k, v), r) -> 
+          if key = k then 
+               Node (l, (key, value), r)
+          else if key < k then
+               Node (dict_insert key value l, (k, v), r)
+          else
+               Node (l, (k, v), dict_insert key value  r)
+
 
