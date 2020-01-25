@@ -28,33 +28,36 @@
 ###############################################################################
 
 def pivot(a, start, end):
-    p = start
     l = start + 1
     r = end
-    on_left = False
 
-    while l < r:
-        if on_left:
-            if a[l] >= a[p]:
-                temp = a[l]
-                a[l] = a[p]
-                a[p] = temp
-                p = l
-                on_left = False
+    while True:
+        # Prvi manjši na desni
+        while l <= r and a[r] >= a[start]:
+            r -= 1
+        
+        # Prvi večji na levi
+        while l <= r and a[l] < a[start]:
+            l += 1
+        
+        # Zamenjava
+        if l <= r:
+            temp = a[l]
+            a[l] = a[r]
+            a[r] = temp
+            r -= 1
             l += 1
         else:
-            if a[r] < a[p]:
-                temp = a[r]
-                a[r] = a[p]
-                a[p] = temp
-                p = r
-                on_left = True
-            r -= 1
-    return p
+            break
+    
+    # Vstavimo Pivot na pravo mesto
+    temp = a[r]
+    a[r] = a[start]
+    a[start] = temp
+
+    return r
         
 a = [10, 4, 5, 15, 11, 2, 17, 0, 18]
-print(pivot(a, 1, 7))
-
 
 ###############################################################################
 # V tabeli želimo poiskati vrednost k-tega elementa po velikosti.
@@ -94,7 +97,16 @@ def kth_element(a, k):
 #     [2, 3, 4, 5, 10, 11, 15, 17, 18]
 ###############################################################################
 
-#def quicksort(a):
+def quicksort_part(a, start, end):
+    if start >= end:
+        return
+    
+    p = pivot(a, start, end)
+    quicksort_part(a, start, p - 1)
+    quicksort_part(a, p + 1, end)
+
+def quicksort(a):
+    quicksort_part(a, 0, len(a) - 1)
 
 
 ###############################################################################
