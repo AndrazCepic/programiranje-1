@@ -52,10 +52,15 @@ module type NAT = sig
   type t
 
   val eq   : t -> t -> bool
+  val add  : t -> t -> t
+  val sub  : t -> t -> t
+  val mult : t -> t -> t
+
   val zero : t
-  (* Dodajte manjkajoče! *)
-  (* val to_int : t -> int *)
-  (* val of_int : int -> t *)
+  val one  : t
+  
+  val to_int : t -> int
+  val of_int : int -> t
 end
 
 (*----------------------------------------------------------------------------*]
@@ -68,12 +73,17 @@ end
 [*----------------------------------------------------------------------------*)
 
 module Nat_int : NAT = struct
-
   type t = int
-  let eq x y = failwith "later"
+  let eq x y = (x = y)
   let zero = 0
-  (* Dodajte manjkajoče! *)
+  let one = 1
 
+  let add x y = x + y
+  let sub x y = x - y
+  let mult x y = x * y
+
+  let to_int x = x
+  let of_int x = x
 end
 
 (*----------------------------------------------------------------------------*]
@@ -90,10 +100,43 @@ end
 
 module Nat_peano : NAT = struct
 
-  type t = unit (* To morate spremeniti! *)
-  let eq x y = failwith "later"
-  let zero = () (* To morate spremeniti! *)
-  (* Dodajte manjkajoče! *)
+  type t = 
+    | Zero 
+    | Succ of t
+
+  let eq x y = (x = y)
+  let zero = Zero
+  let one = Succ(zero)
+
+  let rec add x y =
+    match x with
+    | Zero -> y
+    | Succ(z) -> Succ (add z y)
+
+  let rec sub x y = 
+    match x with
+    | Zero -> Zero
+    | Succ (n) -> 
+      match y with 
+      | Zero -> n
+      | Succ (k) -> sub n k
+
+  let rec mult x y = 
+    match x with
+    | Zero -> Zero
+    | Succ (n) -> add (mult n y) y
+
+  let of_int x = 
+    let rec aux acc y =
+      if y = 0 then acc
+      else aux (Succ(acc)) (y-1)
+    in aux Zero x
+
+  let to_int x = 
+    let rec aux acc = function
+      | Zero -> acc
+      | Succ (n) -> aux (acc + 1) n
+    in aux 0 x
 
 end
 
@@ -118,7 +161,11 @@ end
  - : int = 4950
 [*----------------------------------------------------------------------------*)
 
-let sum_nat_100 (module Nat : NAT) = ()
+let sum_nat_100 (module Nat : NAT) = 
+  let n = Nat.of_int 100 in
+  let m = Nat.add n Nat.one
+  in
+  (Nat.to_int (Nat.mult n m)) / 2
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  Now we follow the fable told by John Reynolds in the introduction.
@@ -132,8 +179,16 @@ let sum_nat_100 (module Nat : NAT) = ()
 
 module type COMPLEX = sig
   type t
+  
   val eq : t -> t -> bool
-  (* Dodajte manjkajoče! *)
+  val neg : t -> t
+  val conj : t -> t
+  val add : t -> t -> t
+  val mult : t -> t -> t
+
+  val zero : t
+  val one : t
+  val i : t
 end
 
 (*----------------------------------------------------------------------------*]
@@ -145,8 +200,19 @@ module Cartesian : COMPLEX = struct
 
   type t = {re : float; im : float}
 
-  let eq x y = failwith "later"
-  (* Dodajte manjkajoče! *)
+  let eq {re=re1; im=im1} {re=re2; im=im2} = 
+    re1 = re2 && im1 = im2
+
+  let neg {re=re; im=im} = {re = -.re; im = -.im}
+  let conj {re=re; im=im} = {re = re; im = -.im}
+  let add  {re=re1; im=im1} {re=re2; im=im2} = 
+    {re = re1 +. re2; im = im1 +. im2}
+  let mult {re=re1; im=im1} {re=re2; im=im2} = 
+    {re = re1 *. re2 -. im1 *. im2; im = re1 *. im2 +. re2 *. im1}
+
+  let zero = {re = 0.0; im = 0.0}
+  let one = {re = 1.0; im = 0.0}
+  let i = {re = 0.0; im = 1.0} 
 
 end
 
@@ -167,8 +233,25 @@ module Polar : COMPLEX = struct
   let rad_of_deg deg = (deg /. 180.) *. pi
   let deg_of_rad rad = (rad /. pi) *. 180.
 
-  let eq x y = failwith "later"
-  (* Dodajte manjkajoče! *)
+  let eq {magn=magn1; arg=arg1} {magn=magn2; arg=arg2} =
+    magn1 = magn2 && arg1 = arg2 
+  let neg {magn=magn; arg=arg} = 
+    if arg < pi then {magn=magn; arg = arg +. pi}
+    else {magn=magn; arg = arg -. pi}
+  let conj {magn=magn; arg=arg} = 
+    if arg = 0.0 then {magn=magn; arg = 0.0}
+    else {magn=magn; arg = 2.0*.pi -. arg}
+  let mult {magn=magn1; arg=arg1} {magn=magn2; arg=arg2} =
+    if arg1 +. arg2 < 2.0*.pi then 
+      {magn=magn1 *. magn2; arg = arg1 +. arg2}
+    else 
+      {magn=magn1 *. magn2; arg = arg1 +. arg2 -. 2.0*.pi}
+  let add {magn=magn1; arg=arg1} {magn=magn2; arg=arg2} =
+    failwith "later"
+  
+  let zero = {magn = 0.0; arg = 0.0}
+  let one = {magn = 1.0; arg = 0.0}
+  let i = {magn = 1.0; arg = pi /. 2.0}
 
 end
 
@@ -186,6 +269,51 @@ end
  [print] (print naj ponovno deluje zgolj na [(string, int) t].
 [*----------------------------------------------------------------------------*)
 
+module type DICT = sig
+  type ('a, 'b) dict
+  
+  val empty : ('a, 'b) dict
+  val dict_get : 'a -> ('a, 'b) dict -> 'b option
+  val dict_insert : 'a -> 'b -> ('a, 'b) dict -> ('a, 'b) dict
+end
+
+type 'a tree = 
+  | Empty 
+  | Node of 'a tree * 'a * 'a tree
+
+let leaf a = Node (Empty, a, Empty)
+
+module Dict : DICT = struct
+  type ('a, 'b) dict = ('a * 'b) tree
+
+  let empty = Empty 
+
+  let print_dict (d : (string, int) dict) = 
+    let rec aux = function
+        | Empty -> ""
+        | Node (l, (key, value), r) -> 
+              (aux l) ^ (key ^ " : " ^ (string_of_int value) ^ "\n") ^ (aux r)
+    in print_string (aux d)
+
+  let rec dict_get key d = 
+    match d with 
+    | Empty -> None
+    | Node (l, (k, v), r) ->
+      if key = k then Some v
+      else if key < k then dict_get key l
+      else dict_get key r
+
+  let rec dict_insert key value dict = 
+     match dict with
+     | Empty -> leaf (key, value)
+     | Node (l, (k, v), r) -> 
+          if key = k then 
+               Node (l, (key, value), r)
+          else if key < k then
+               Node (dict_insert key value l, (k, v), r)
+          else
+               Node (l, (k, v), dict_insert key value  r)
+end
 
 (*----------------------------------------------------------------------------*]
  Funkcija [count (module Dict) list] prešteje in izpiše pojavitve posameznih
@@ -198,4 +326,20 @@ end
  - : unit = ()
 [*----------------------------------------------------------------------------*)
 
-let count (module Dict : DICT) list = ()
+let count (module Dict : DICT) (list : string list) =
+  let rec aux1 (d : (string, int) Dict.dict) = function
+    | [] -> d
+    | x::xs -> 
+      match Dict.dict_get x d with
+      | None ->
+        let rec aux2 c = function
+          | [] -> c
+          | y::ys -> 
+            if y = x then aux2 (c + 1) ys
+            else aux2 c ys
+        in 
+        let v = aux2 0 list
+        in aux1 (Dict.dict_insert x v d) xs
+      | Some(_) -> aux1 d xs
+  in 
+  Dict.print_dict (aux1 Dict.empty list)
