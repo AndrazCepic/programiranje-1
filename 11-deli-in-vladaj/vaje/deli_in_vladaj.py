@@ -132,7 +132,38 @@ def quicksort(a):
 #
 ###############################################################################
 
+def merge(target, begin, end, list_1, list_2):
+    i = 0
+    j = 0
+    while True:
+        if begin + i + j == end:
+            break
 
+        if j == len(list_2):
+            if i == len(list_1):
+                break
+            target[begin + i + j] = list_1[i]
+            i += 1
+            continue
+
+        if i == len(list_1):
+            if j == len(list_2):
+                break
+            target[begin + i + j] = list_2[j]
+            j += 1
+            continue
+
+        if list_1[i] <= list_2[j]:
+            target[begin + i + j] = list_1[i]
+            i += 1
+        else:
+            target[begin + i + j] = list_2[j]
+            j += 1
+
+list_1 = [1,3,5,7,10]
+list_2 = [1,2,3,4,5,6,7]
+target = [-1 for i in range(len(list_1) + len(list_2))]
+res = [1,1,2,3,3,4,5,5,6,7,7,10]
 
 ###############################################################################
 # Tabelo želimo urediti z zlivanjem (merge sort). 
@@ -149,3 +180,21 @@ def quicksort(a):
 # >>> mergesort(a)
 # [2, 3, 4, 5, 10, 11, 15, 17, 18]
 ###############################################################################
+
+def mergesort_part(a, start, end):
+    if (end - start) <= 1:
+        return
+
+    n = (end - start) // 2
+    mergesort_part(a, start, start + n)
+    mergesort_part(a, start + n, end)
+    l = a[start : start + n]
+    r = a[start + n : end]
+    merge(a, start, end, l, r)
+
+def mergesort(a):
+    mergesort_part(a, 0, len(a))
+
+
+a = [10, 4, 5, 15, 11, 3, 17, 2, 18]
+res_2 = [2, 3, 4, 5, 10, 11, 15, 17, 18]
